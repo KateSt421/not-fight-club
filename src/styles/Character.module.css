@@ -1,0 +1,45 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.avatar {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  object-fit: cover;
+}
+
+.name {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.choose {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+}
+
+.avatars {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.avatars img {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s, border 0.2s;
+}
+
+.avatars img:hover {
+  transform: scale(1.1);
+  border: 2px solid yellow;
+}
