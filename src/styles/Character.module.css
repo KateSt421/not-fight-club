@@ -4,13 +4,17 @@
   align-items: center;
   gap: 1rem;
   text-align: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2rem;
+  border-radius: 12px;
+  color: white;
 }
 
-.avatar {
+.avatarBig {
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  border: 3px solid #fff;
+  border: 3px solid white;
   object-fit: cover;
 }
 
@@ -26,20 +30,27 @@
 
 .avatars {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1rem;
   margin-top: 0.5rem;
 }
 
-.avatars img {
+.avatar {
   width: 80px;
   height: 80px;
   border-radius: 12px;
   border: 2px solid transparent;
   cursor: pointer;
+  object-fit: cover;
   transition: transform 0.2s, border 0.2s;
 }
 
-.avatars img:hover {
+.avatar:hover {
   transform: scale(1.1);
   border: 2px solid yellow;
+}
+
+.active {
+  border: 2px solid lime;
 }
