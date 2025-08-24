@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getCharacter, setCharacter } from "../utils/storage";
 import styles from "../styles/Fight.module.css";
 
@@ -10,6 +10,27 @@ export default function Fight() {
   const [botHP, setBotHP] = useState(100);
   const [log, setLog] = useState([]);
   const [gameOver, setGameOver] = useState(false);
+  const [botAvatar, setBotAvatar] = useState("");
+
+  useEffect(() => {
+    if (!char.name) {
+      navigate("/", { replace: true });
+    }
+  }, [char.name, navigate]);
+
+  useEffect(() => {
+    const avatars = [
+      "avatars/1fabe4d4-bdfc-4b0a-a295-77fb0fd4bc39.jpg",
+      "avatars/yoda.jpg",
+      "avatars/89c49be9-433b-41c3-a3be-8a96cf540021.jpg",
+      "avatars/b8999b5e-adef-4949-9ec0-3992627e78fd.jpg",
+      "avatars/dde8f914-c67d-4666-bd45-f4a6529f259c.jpg",
+      "avatars/de173f5b-a12b-4002-b03e-235616bc66dd.jpg",
+    ];
+
+    const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+    setBotAvatar(randomAvatar);
+  }, []);
 
   const addLog = (msg) => setLog((prev) => [msg, ...prev]);
 
@@ -54,16 +75,36 @@ export default function Fight() {
     setCharacter(updated);
   };
 
+  const handleImageError = (e) => {
+    console.error("Image not found:", e.target.src);
+    e.target.style.display = "none";
+  };
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Бой: {char.name} vs 🤖 Бот</h2>
 
       <div className={styles.hpWrapper}>
         <div className={styles.box}>
+          <img
+            src={char.avatar}
+            alt="Player avatar"
+            className={styles.avatar}
+            onError={handleImageError}
+          />
           <p className={styles.bold}>{char.name}</p>
           <p>HP: {playerHP}</p>
         </div>
+
+        <div className={styles.vs}>VS</div>
+
         <div className={styles.box}>
+          <img
+            src={botAvatar}
+            alt="Bot avatar"
+            className={styles.avatar}
+            onError={handleImageError}
+          />
           <p className={styles.bold}>🤖 Бот</p>
           <p>HP: {botHP}</p>
         </div>

@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
   padding: 24px;
   gap: 1rem;
 }
@@ -10,20 +9,41 @@
 .title {
   font-size: 1.5rem;
   font-weight: bold;
+  color: white;
 }
 
 .hpWrapper {
   display: flex;
+  align-items: center;
   gap: 3rem;
   margin-top: 1rem;
 }
 
 .box {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  border: 2px solid white;
+  object-fit: cover;
+}
+
+.vs {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #dc2626;
 }
 
 .bold {
   font-weight: bold;
+  color: white;
 }
 
 .buttons {
@@ -35,25 +55,46 @@
 .attack {
   background: #dc2626;
   color: white;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.attack:hover {
+  background: #ef4444;
 }
 
 .surrender {
   background: #4b5563;
   color: white;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.surrender:hover {
+  background: #6b7280;
 }
 
 .back {
   background: #2563eb;
   color: white;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.back:hover {
+  background: #1d4ed8;
 }
 
 .log {
@@ -65,5 +106,26 @@
   margin-top: 1rem;
   height: 200px;
   overflow-y: auto;
-  background: #f9fafb;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+}
+
+.log h3 {
+  margin-bottom: 0.5rem;
+  color: #fbbf24;
+}
+
+@media (max-width: 768px) {
+  .hpWrapper {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .vs {
+    margin: 0.5rem 0;
+  }
+
+  .buttons {
+    flex-direction: column;
+  }
 }

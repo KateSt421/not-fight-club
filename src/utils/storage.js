@@ -1,23 +1,34 @@
-// Получить данные персонажа из localStorage
 export const getCharacter = () => {
   try {
-    return JSON.parse(localStorage.getItem("character")) || {};
+    const char = JSON.parse(localStorage.getItem("character")) || {};
+    return {
+      name: char.name || "",
+      avatar: char.avatar || "avatars/yoda.jpg",
+      wins: char.wins || 0,
+      loses: char.loses || 0,
+    };
   } catch (e) {
     console.error("Ошибка чтения персонажа из localStorage:", e);
-    return {};
+    return { name: "", avatar: "avatars/yoda.jpg", wins: 0, loses: 0 };
   }
 };
 
-// Сохранить данные персонажа в localStorage
 export const setCharacter = (char) => {
   try {
-    localStorage.setItem("character", JSON.stringify(char));
+    localStorage.setItem(
+      "character",
+      JSON.stringify({
+        name: char.name || "",
+        avatar: char.avatar || "avatars/yoda.jpg",
+        wins: char.wins || 0,
+        loses: char.loses || 0,
+      })
+    );
   } catch (e) {
     console.error("Ошибка сохранения персонажа в localStorage:", e);
   }
 };
 
-// Очистить персонажа
 export const clearCharacter = () => {
   try {
     localStorage.removeItem("character");

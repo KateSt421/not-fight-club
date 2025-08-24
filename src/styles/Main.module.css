@@ -4,10 +4,29 @@
   align-items: center;
   gap: 1.5rem;
   text-align: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2rem;
+  border-radius: 12px;
+  margin-top: 80px;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid white;
+  object-fit: cover;
 }
 
 .welcome {
   font-size: 1.5rem;
+  color: white;
+}
+
+.stats {
+  display: flex;
+  gap: 2rem;
+  color: white;
 }
 
 .fightButton {
@@ -18,6 +37,11 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: background 0.2s;
+}
+
+.fightButton:hover {
+  background: #ef4444;
 }
 
 .charButton {
@@ -25,5 +49,25 @@
   color: white;
   padding: 10px 16px;
   border-radius: 8px;
+  border: none;
   cursor: pointer;
+  transition: background 0.2s;
+}
+
+.charButton:hover {
+  background: #6b7280;
+}
+
+.logoutButton {
+  background: #6b7280;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.logoutButton:hover {
+  background: #9ca3af;
 }
