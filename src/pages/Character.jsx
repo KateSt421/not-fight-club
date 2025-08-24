@@ -7,12 +7,12 @@ export default function Character() {
   const [char, setChar] = useState(getCharacter());
 
   const avatars = [
-    "/avatars/yoda.png",
-    "/avatars/vader.png",
-    "/avatars/stormtrooper.png",
-    "/avatars/luke.png",
-    "/avatars/leia.png",
-    "/avatars/chewbacca.png",
+    "/avatars/1fabe4d4-bdfc-4b0a-a295-77fb0fd4bc39.jpg",
+    "/avatars/yoda.jpg",
+    "/avatars/89c49be9-433b-41c3-a3be-8a96cf540021.jpg",
+    "/avatars/b8999b5e-adef-4949-9ec0-3992627e78fd.jpg",
+    "/avatars/dde8f914-c67d-4666-bd45-f4a6529f259c.jpg",
+    "/avatars/de173f5b-a12b-4002-b03e-235616bc66dd.jpg",
   ];
 
   const changeAvatar = (avatar) => {

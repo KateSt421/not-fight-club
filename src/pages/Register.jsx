@@ -6,7 +6,7 @@ import container from "../styles/Container.module.css";
 
 export default function Register() {
   const [name, setName] = useState("");
-  const [avatar, setAvatar] = useState("/avatars/yoda.png"); // аватар по умолчанию
+  const [avatar, setAvatar] = useState("/avatars/yoda.jpg");
   const navigate = useNavigate();
 
   const handleCreate = () => {
@@ -18,7 +18,7 @@ export default function Register() {
 
   const avatars = [
     "/avatars/1fabe4d4-bdfc-4b0a-a295-77fb0fd4bc39.jpg",
-    "/avatars/18a61416-7e4b-4aa4-a87f-3858fac4d9ce.jpg",
+    "/avatars/yoda.jpg",
     "/avatars/89c49be9-433b-41c3-a3be-8a96cf540021.jpg",
     "/avatars/b8999b5e-adef-4949-9ec0-3992627e78fd.jpg",
     "/avatars/dde8f914-c67d-4666-bd45-f4a6529f259c.jpg",
