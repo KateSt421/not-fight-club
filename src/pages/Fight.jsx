@@ -3,6 +3,14 @@ import { useState, useEffect, useCallback } from "react";
 import { getCharacter, setCharacter } from "../utils/storage";
 import { monsters, attackZones } from "../data/monsters";
 import styles from "../styles/Fight.module.css";
+import FightHeader from "../components/fight/FightHeader";
+import HealthBars from "../components/fight/HealthBars";
+import PlayerActions from "../components/fight/PlayerActions";
+import MonsterActions from "../components/fight/MonsterActions";
+import BattleControls from "../components/fight/BattleControls";
+import BattleInfo from "../components/fight/BattleInfo";
+import GameOver from "../components/fight/GameOver";
+import BattleLog from "../components/fight/BattleLog";
 
 export default function Fight() {
   const navigate = useNavigate();
@@ -16,7 +24,6 @@ export default function Fight() {
 
   const [playerAttack, setPlayerAttack] = useState([]);
   const [playerDefense, setPlayerDefense] = useState([]);
-
   const [monsterAttack, setMonsterAttack] = useState([]);
   const [monsterDefense, setMonsterDefense] = useState([]);
 
@@ -69,17 +76,21 @@ export default function Fight() {
 
   const handleZoneSelect = (zoneId, type) => {
     if (type === "attack") {
-      if (playerAttack.includes(zoneId)) {
-        setPlayerAttack(playerAttack.filter((z) => z !== zoneId));
-      } else if (playerAttack.length < 1) {
-        setPlayerAttack([...playerAttack, zoneId]);
-      }
+      setPlayerAttack((prev) =>
+        prev.includes(zoneId)
+          ? prev.filter((z) => z !== zoneId)
+          : prev.length < 1
+          ? [...prev, zoneId]
+          : prev
+      );
     } else {
-      if (playerDefense.includes(zoneId)) {
-        setPlayerDefense(playerDefense.filter((z) => z !== zoneId));
-      } else if (playerDefense.length < 2) {
-        setPlayerDefense([...playerDefense, zoneId]);
-      }
+      setPlayerDefense((prev) =>
+        prev.includes(zoneId)
+          ? prev.filter((z) => z !== zoneId)
+          : prev.length < 2
+          ? [...prev, zoneId]
+          : prev
+      );
     }
   };
 
@@ -123,16 +134,12 @@ export default function Fight() {
 
     setMonsterHP(newMonsterHP);
     setPlayerHP(newPlayerHP);
-
     setPlayerAttack([]);
     setPlayerDefense([]);
     setRound((prev) => prev + 1);
 
-    if (newPlayerHP <= 0) {
-      setTimeout(() => endFight(false), 100);
-    } else if (newMonsterHP <= 0) {
-      setTimeout(() => endFight(true), 100);
-    }
+    if (newPlayerHP <= 0) endFight(false);
+    else if (newMonsterHP <= 0) endFight(true);
   };
 
   const getZoneName = (zoneId) => {
@@ -165,189 +172,60 @@ export default function Fight() {
     setCharacter(updated);
   };
 
-  const handleImageError = (e) => {
-    console.error("Image not found:", e.target.src);
-    e.target.style.display = "none";
-  };
-
   if (!monster) {
     return <div className={styles.container}>Loading...</div>;
   }
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>
-        Бой: {char.name} vs {monster.name}
-      </h2>
-      <p className={styles.round}>Раунд: {round}</p>
+      <FightHeader char={char} monster={monster} round={round} />
 
-      <div className={styles.hpWrapper}>
-        <div className={styles.box}>
-          <img
-            src={char.avatar}
-            alt="Player avatar"
-            className={styles.avatar}
-            onError={handleImageError}
-          />
-          <p className={styles.bold}>{char.name}</p>
-          <div className={styles.healthBar}>
-            <div
-              className={styles.healthFill}
-              style={{ width: `${(playerHP / 100) * 100}%` }}
-            />
-            <span>HP: {playerHP}</span>
-          </div>
-        </div>
-
-        <div className={styles.vs}>VS</div>
-
-        <div className={styles.box}>
-          <img
-            src={monster.avatar}
-            alt="Monster avatar"
-            className={styles.avatar}
-            onError={handleImageError}
-          />
-          <p className={styles.bold}>{monster.name}</p>
-          <div className={styles.healthBar}>
-            <div
-              className={styles.healthFill}
-              style={{ width: `${(monsterHP / monster.health) * 100}%` }}
-            />
-            <span>HP: {monsterHP}</span>
-          </div>
-        </div>
-      </div>
+      <HealthBars
+        char={char}
+        playerHP={playerHP}
+        monster={monster}
+        monsterHP={monsterHP}
+      />
 
       {!gameOver && (
         <>
           <div className={styles.battleInterface}>
-            <div className={styles.playerSection}>
-              <h3>Ваши действия:</h3>
+            <PlayerActions
+              attackZones={attackZones}
+              playerAttack={playerAttack}
+              playerDefense={playerDefense}
+              onZoneSelect={handleZoneSelect}
+            />
 
-              <div className={styles.zoneSelection}>
-                <h4>Атака (выберите 1 зону):</h4>
-                <div className={styles.zones}>
-                  {attackZones.map((zone) => (
-                    <button
-                      key={zone.id}
-                      className={`${styles.zoneButton} ${
-                        playerAttack.includes(zone.id)
-                          ? styles.selectedAttack
-                          : ""
-                      }`}
-                      onClick={() => handleZoneSelect(zone.id, "attack")}
-                      disabled={
-                        playerAttack.length >= 1 &&
-                        !playerAttack.includes(zone.id)
-                      }
-                    >
-                      {zone.icon} {zone.name}
-                      {playerAttack.includes(zone.id) && " ✅"}
-                    </button>
-                  ))}
-                </div>
-                <p className={styles.selectionInfo}>
-                  Выбрано: {playerAttack.length}/1
-                </p>
-              </div>
-
-              <div className={styles.zoneSelection}>
-                <h4>Защита (выберите 2 зоны):</h4>
-                <div className={styles.zones}>
-                  {attackZones.map((zone) => (
-                    <button
-                      key={zone.id}
-                      className={`${styles.zoneButton} ${
-                        playerDefense.includes(zone.id)
-                          ? styles.selectedDefense
-                          : ""
-                      }`}
-                      onClick={() => handleZoneSelect(zone.id, "defense")}
-                      disabled={
-                        playerDefense.length >= 2 &&
-                        !playerDefense.includes(zone.id)
-                      }
-                    >
-                      {zone.icon} {zone.name}
-                      {playerDefense.includes(zone.id) && " ✅"}
-                    </button>
-                  ))}
-                </div>
-                <p className={styles.selectionInfo}>
-                  Выбрано: {playerDefense.length}/2
-                </p>
-              </div>
-            </div>
-
-            <div className={styles.monsterSection}>
-              <h3>Действия {monster.name}:</h3>
-
-              <div className={styles.monsterStats}>
-                <p>⚔️ Атака: {monster.attackZones} зоны</p>
-                <p>🛡️ Защита: {monster.defenseZones} зоны</p>
-                <p>💢 Урон: {monster.damage}</p>
-              </div>
-
-              <div className={styles.monsterActions}>
-                <h4>Атакует:</h4>
-                <div className={styles.monsterZones}>
-                  {monsterAttack.map((zoneId) => (
-                    <span key={zoneId} className={styles.monsterZone}>
-                      {getZoneIcon(zoneId)} {getZoneName(zoneId)}
-                    </span>
-                  ))}
-                </div>
-
-                <h4>Защищает:</h4>
-                <div className={styles.monsterZones}>
-                  {monsterDefense.map((zoneId) => (
-                    <span key={zoneId} className={styles.monsterZone}>
-                      {getZoneIcon(zoneId)} {getZoneName(zoneId)}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <MonsterActions
+              monster={monster}
+              monsterAttack={monsterAttack}
+              monsterDefense={monsterDefense}
+              getZoneName={getZoneName}
+              getZoneIcon={getZoneIcon}
+            />
           </div>
 
-          <div className={styles.buttons}>
-            <button
-              onClick={fight}
-              className={styles.attack}
-              disabled={isAttackButtonDisabled}
-            >
-              ⚔️ Атаковать (Раунд {round})
-            </button>
-            <button onClick={surrender} className={styles.surrender}>
-              🏳️ Сдаться
-            </button>
-          </div>
+          <BattleControls
+            onAttack={fight}
+            onSurrender={surrender}
+            isAttackDisabled={isAttackButtonDisabled}
+            round={round}
+          />
 
-          <div className={styles.battleInfo}>
-            <p>
-              💡 Подсказка: {monster.name} атакует в {monster.attackZones}{" "}
-              зону(ы) и защищает {monster.defenseZones} зону(ы)
-            </p>
-          </div>
+          <BattleInfo monster={monster} />
         </>
       )}
 
       {gameOver && (
-        <div className={styles.gameOver}>
-          <h2>{playerHP > 0 ? "🎉 Победа!" : "💀 Поражение"}</h2>
-          <button onClick={() => navigate("/main")} className={styles.back}>
-            На главную
-          </button>
-        </div>
+        <GameOver
+          playerHP={playerHP}
+          monster={monster}
+          onBackToMain={() => navigate("/main")}
+        />
       )}
 
-      <div className={styles.log}>
-        <h3>📜 Журнал боя</h3>
-        {log.map((entry, idx) => (
-          <p key={idx}>{entry}</p>
-        ))}
-      </div>
+      <BattleLog log={log} />
     </div>
   );
 }
