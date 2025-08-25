@@ -14,6 +14,7 @@ import Register from "./pages/Register";
 import Main from "./pages/Main";
 import Character from "./pages/Character";
 import Fight from "./pages/Fight";
+import Settings from "./pages/Settings";
 import styles from "./styles/App.module.css";
 
 function AppContent() {
@@ -23,7 +24,7 @@ function AppContent() {
   useEffect(() => {
     const char = getCharacter();
 
-    if (!char.name && location.pathname !== "/") {
+    if (!char.name && !["/", "/settings"].includes(location.pathname)) {
       navigate("/", { replace: true });
     }
     if (char.name && location.pathname === "/") {
@@ -40,6 +41,7 @@ function AppContent() {
           <Route path="/main" element={<Main />} />
           <Route path="/character" element={<Character />} />
           <Route path="/fight" element={<Fight />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

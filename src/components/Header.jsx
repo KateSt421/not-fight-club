@@ -38,6 +38,12 @@ export default function Header() {
             >
               Fight
             </button>
+            <button
+              onClick={() => navigate("/settings")}
+              className={styles.navButton}
+            >
+              ⚙️ Settings
+            </button>
             <button onClick={handleLogout} className={styles.logoutButton}>
               Logout
             </button>
