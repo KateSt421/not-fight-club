@@ -230,7 +230,87 @@
   text-align: center;
 }
 
-/* Адаптивность */
+.round {
+  color: #fbbf24;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.monsterStats {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.monsterStats p {
+  margin: 0.5rem 0;
+  color: white;
+}
+
+.monsterActions h4 {
+  color: #fbbf24;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.monsterZones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.monsterZone {
+  background: rgba(220, 38, 38, 0.3);
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #dc2626;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.selectedAttack {
+  border-color: #dc2626 !important;
+  background: rgba(220, 38, 38, 0.2) !important;
+}
+
+.selectedDefense {
+  border-color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.2) !important;
+}
+
+.selectionInfo {
+  color: #d1d5db;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.battleInfo {
+  background: rgba(59, 130, 246, 0.2);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #3b82f6;
+  margin-top: 1rem;
+}
+
+.battleInfo p {
+  color: #93c5fd;
+  margin: 0;
+  text-align: center;
+}
+
+.gameOver {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.gameOver h2 {
+  color: #fbbf24;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
 @media (max-width: 768px) {
   .battleInterface {
     grid-template-columns: 1fr;
@@ -256,5 +336,21 @@
 
   .zones {
     grid-template-columns: 1fr;
+  }
+
+  .monsterZones {
+    justify-content: center;
+  }
+
+  .monsterZone {
+    font-size: 0.8rem;
+  }
+
+  .battleInfo {
+    padding: 0.8rem;
+  }
+
+  .battleInfo p {
+    font-size: 0.9rem;
   }
 }
