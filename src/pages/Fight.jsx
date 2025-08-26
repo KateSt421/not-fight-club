@@ -1,6 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
-import { getCharacter, setCharacter } from "../utils/storage";
+import {
+  getCharacter,
+  setCharacter,
+  getBattleState,
+  setBattleState,
+  clearBattleState,
+  addBattleToHistory,
+} from "../utils/storage";
 import { monsters, attackZones } from "../data/monsters";
 import styles from "../styles/Fight.module.css";
 import FightHeader from "../components/fight/FightHeader";
@@ -9,7 +16,6 @@ import PlayerActions from "../components/fight/PlayerActions";
 import MonsterActions from "../components/fight/MonsterActions";
 import BattleControls from "../components/fight/BattleControls";
 import BattleInfo from "../components/fight/BattleInfo";
-import GameOver from "../components/fight/GameOver";
 import BattleLog from "../components/fight/BattleLog";
 
 export default function Fight() {
@@ -30,8 +36,60 @@ export default function Fight() {
   useEffect(() => {
     if (!char.name) {
       navigate("/", { replace: true });
+      return;
+    }
+
+    const savedBattle = getBattleState();
+    if (savedBattle) {
+      setPlayerHP(savedBattle.playerHP);
+      setMonster(savedBattle.monster);
+      setMonsterHP(savedBattle.monsterHP);
+      setLog(savedBattle.log);
+      setRound(savedBattle.round);
+      setPlayerAttack(savedBattle.playerAttack || []);
+      setPlayerDefense(savedBattle.playerDefense || []);
+      setMonsterAttack(savedBattle.monsterAttack || []);
+      setMonsterDefense(savedBattle.monsterDefense || []);
+      setGameOver(savedBattle.gameOver || false);
+    } else {
+      const randomMonster =
+        monsters[Math.floor(Math.random() * monsters.length)];
+      setMonster(randomMonster);
+      setMonsterHP(randomMonster.health);
+      generateMonsterTurn();
     }
   }, [char.name, navigate]);
+
+  useEffect(() => {
+    if (monster && char.name) {
+      const battleState = {
+        playerHP,
+        monster,
+        monsterHP,
+        log,
+        round,
+        playerAttack,
+        playerDefense,
+        monsterAttack,
+        monsterDefense,
+        gameOver,
+        timestamp: new Date().toISOString(),
+      };
+      setBattleState(battleState);
+    }
+  }, [
+    playerHP,
+    monster,
+    monsterHP,
+    log,
+    round,
+    playerAttack,
+    playerDefense,
+    monsterAttack,
+    monsterDefense,
+    gameOver,
+    char.name,
+  ]);
 
   const generateMonsterTurn = useCallback(() => {
     if (!monster) return;
@@ -59,12 +117,6 @@ export default function Fight() {
     setMonsterAttack(monsterAttackZones);
     setMonsterDefense(monsterDefenseZones);
   }, [monster]);
-
-  useEffect(() => {
-    const randomMonster = monsters[Math.floor(Math.random() * monsters.length)];
-    setMonster(randomMonster);
-    setMonsterHP(randomMonster.health);
-  }, []);
 
   useEffect(() => {
     if (monster) {
@@ -161,6 +213,16 @@ export default function Fight() {
   const endFight = (won) => {
     setGameOver(true);
     const updated = { ...char };
+
+    addBattleToHistory({
+      character: char.name,
+      monster: monster.name,
+      result: won ? "win" : "lose",
+      playerHP,
+      monsterHP: won ? 0 : monsterHP,
+      rounds: round,
+    });
+
     if (won) {
       updated.wins++;
       addLog(`🎉 ${char.name} победил ${monster.name}!`);
@@ -168,8 +230,15 @@ export default function Fight() {
       updated.loses++;
       addLog(`💀 ${char.name} проиграл против ${monster.name}...`);
     }
+
     setChar(updated);
     setCharacter(updated);
+    clearBattleState();
+  };
+
+  const continueBattle = () => {
+    clearBattleState();
+    navigate("/fight");
   };
 
   if (!monster) {
@@ -201,6 +270,7 @@ export default function Fight() {
               monster={monster}
               monsterAttack={monsterAttack}
               monsterDefense={monsterDefense}
+              attackZones={attackZones}
               getZoneName={getZoneName}
               getZoneIcon={getZoneIcon}
             />
@@ -218,11 +288,16 @@ export default function Fight() {
       )}
 
       {gameOver && (
-        <GameOver
-          playerHP={playerHP}
-          monster={monster}
-          onBackToMain={() => navigate("/main")}
-        />
+        <div className={styles.gameOver}>
+          <h2>{playerHP > 0 ? "🎉 Победа!" : "💀 Поражение"}</h2>
+          <p>Раундов: {round}</p>
+          <button onClick={() => navigate("/main")} className={styles.back}>
+            На главную
+          </button>
+          <button onClick={continueBattle} className={styles.continueButton}>
+            Новый бой
+          </button>
+        </div>
       )}
 
       <BattleLog log={log} />
