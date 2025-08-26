@@ -16,6 +16,7 @@ import PlayerActions from "../components/fight/PlayerActions";
 import MonsterActions from "../components/fight/MonsterActions";
 import BattleControls from "../components/fight/BattleControls";
 import BattleInfo from "../components/fight/BattleInfo";
+import GameOver from "../components/fight/GameOver";
 import BattleLog from "../components/fight/BattleLog";
 
 export default function Fight() {
@@ -32,6 +33,55 @@ export default function Fight() {
   const [playerDefense, setPlayerDefense] = useState([]);
   const [monsterAttack, setMonsterAttack] = useState([]);
   const [monsterDefense, setMonsterDefense] = useState([]);
+
+  const startNewBattle = useCallback(() => {
+    clearBattleState();
+
+    setPlayerHP(100);
+    setMonsterHP(0);
+    setGameOver(false);
+    setRound(1);
+    setPlayerAttack([]);
+    setPlayerDefense([]);
+    setMonsterAttack([]);
+    setMonsterDefense([]);
+
+    const randomMonster = monsters[Math.floor(Math.random() * monsters.length)];
+    setMonster(randomMonster);
+    setMonsterHP(randomMonster.health);
+
+    setLog([
+      `🎮 НОВЫЙ БОЙ: ${char.name} vs ${randomMonster.name}`,
+      `❤️ ${char.name}: 100 HP | ${randomMonster.name}: ${randomMonster.health} HP`,
+    ]);
+  }, [char.name]);
+
+  const generateMonsterTurn = useCallback(() => {
+    if (!monster) return;
+
+    const attackZonesCopy = [...attackZones];
+    const monsterAttackZones = [];
+
+    for (let i = 0; i < monster.attackZones; i++) {
+      if (attackZonesCopy.length === 0) break;
+      const randomIndex = Math.floor(Math.random() * attackZonesCopy.length);
+      monsterAttackZones.push(attackZonesCopy[randomIndex].id);
+      attackZonesCopy.splice(randomIndex, 1);
+    }
+
+    const defenseZonesCopy = [...attackZones];
+    const monsterDefenseZones = [];
+
+    for (let i = 0; i < monster.defenseZones; i++) {
+      if (defenseZonesCopy.length === 0) break;
+      const randomIndex = Math.floor(Math.random() * defenseZonesCopy.length);
+      monsterDefenseZones.push(defenseZonesCopy[randomIndex].id);
+      defenseZonesCopy.splice(randomIndex, 1);
+    }
+
+    setMonsterAttack(monsterAttackZones);
+    setMonsterDefense(monsterDefenseZones);
+  }, [monster]);
 
   useEffect(() => {
     if (!char.name) {
@@ -52,13 +102,9 @@ export default function Fight() {
       setMonsterDefense(savedBattle.monsterDefense || []);
       setGameOver(savedBattle.gameOver || false);
     } else {
-      const randomMonster =
-        monsters[Math.floor(Math.random() * monsters.length)];
-      setMonster(randomMonster);
-      setMonsterHP(randomMonster.health);
-      generateMonsterTurn();
+      startNewBattle();
     }
-  }, [char.name, navigate]);
+  }, [char.name, navigate, startNewBattle]);
 
   useEffect(() => {
     if (monster && char.name) {
@@ -90,33 +136,6 @@ export default function Fight() {
     gameOver,
     char.name,
   ]);
-
-  const generateMonsterTurn = useCallback(() => {
-    if (!monster) return;
-
-    const attackZonesCopy = [...attackZones];
-    const monsterAttackZones = [];
-
-    for (let i = 0; i < monster.attackZones; i++) {
-      if (attackZonesCopy.length === 0) break;
-      const randomIndex = Math.floor(Math.random() * attackZonesCopy.length);
-      monsterAttackZones.push(attackZonesCopy[randomIndex].id);
-      attackZonesCopy.splice(randomIndex, 1);
-    }
-
-    const defenseZonesCopy = [...attackZones];
-    const monsterDefenseZones = [];
-
-    for (let i = 0; i < monster.defenseZones; i++) {
-      if (defenseZonesCopy.length === 0) break;
-      const randomIndex = Math.floor(Math.random() * defenseZonesCopy.length);
-      monsterDefenseZones.push(defenseZonesCopy[randomIndex].id);
-      defenseZonesCopy.splice(randomIndex, 1);
-    }
-
-    setMonsterAttack(monsterAttackZones);
-    setMonsterDefense(monsterDefenseZones);
-  }, [monster]);
 
   useEffect(() => {
     if (monster) {
@@ -154,32 +173,81 @@ export default function Fight() {
 
     let playerDamageTaken = 0;
     let monsterDamageTaken = 0;
+    let playerHits = 0;
+    let playerBlocks = 0;
+    let monsterHits = 0;
+    let monsterBlocks = 0;
+
+    addLog(`🥊 РАУНД ${round} НАЧАЛСЯ!`);
+
+    addLog(
+      `🗺️ ${char.name} атакует: ${playerAttack
+        .map((z) => getZoneName(z))
+        .join(", ")}`
+    );
+    addLog(
+      `🗺️ ${char.name} защищает: ${playerDefense
+        .map((z) => getZoneName(z))
+        .join(", ")}`
+    );
+    addLog(
+      `🗺️ ${monster.name} атакует: ${monsterAttack
+        .map((z) => getZoneName(z))
+        .join(", ")}`
+    );
+    addLog(
+      `🗺️ ${monster.name} защищает: ${monsterDefense
+        .map((z) => getZoneName(z))
+        .join(", ")}`
+    );
 
     playerAttack.forEach((attackZone) => {
+      const zoneName = getZoneName(attackZone);
       if (!monsterDefense.includes(attackZone)) {
         monsterDamageTaken += 10;
-        addLog(`⚔️ ${char.name} попал в ${getZoneName(attackZone)}! (-10 HP)`);
-      } else {
+        playerHits++;
         addLog(
-          `🛡️ ${monster.name} заблокировал атаку в ${getZoneName(attackZone)}`
+          `⚔️ АТАКА: ${char.name} → ${monster.name} в ${zoneName} → 10 УРОНА`
+        );
+      } else {
+        playerBlocks++;
+        addLog(
+          `🛡️ БЛОК: ${monster.name} блокирует атаку ${char.name} в ${zoneName}`
         );
       }
     });
 
     monsterAttack.forEach((attackZone) => {
+      const zoneName = getZoneName(attackZone);
       if (!playerDefense.includes(attackZone)) {
         playerDamageTaken += monster.damage;
+        monsterHits++;
         addLog(
-          `⚔️ ${monster.name} попал в ${getZoneName(attackZone)}! (-${
-            monster.damage
-          } HP)`
+          `⚔️ АТАКА: ${monster.name} → ${char.name} в ${zoneName} → ${monster.damage} УРОНА`
         );
       } else {
+        monsterBlocks++;
         addLog(
-          `🛡️ ${char.name} заблокировал атаку в ${getZoneName(attackZone)}`
+          `🛡️ БЛОК: ${char.name} блокирует атаку ${monster.name} в ${zoneName}`
         );
       }
     });
+
+    addLog(`📈 РЕЗУЛЬТАТ РАУНДА ${round}:`);
+    addLog(
+      `   ${char.name}: ${playerHits} попаданий, ${playerBlocks} атак заблокировано`
+    );
+    addLog(
+      `   ${monster.name}: ${monsterHits} попаданий, ${monsterBlocks} атак заблокировано`
+    );
+
+    if (monsterDamageTaken > 0) {
+      addLog(`   💢 ${char.name} нанес ${monsterDamageTaken} урона`);
+    }
+
+    if (playerDamageTaken > 0) {
+      addLog(`   💢 ${monster.name} нанес ${playerDamageTaken} урона`);
+    }
 
     const newMonsterHP = Math.max(monsterHP - monsterDamageTaken, 0);
     const newPlayerHP = Math.max(playerHP - playerDamageTaken, 0);
@@ -190,8 +258,19 @@ export default function Fight() {
     setPlayerDefense([]);
     setRound((prev) => prev + 1);
 
-    if (newPlayerHP <= 0) endFight(false);
-    else if (newMonsterHP <= 0) endFight(true);
+    addLog(`❤️ ТЕКУЩЕЕ ЗДОРОВЬЕ:`);
+    addLog(`   ${char.name}: ${newPlayerHP}/100 HP`);
+    addLog(`   ${monster.name}: ${newMonsterHP}/${monster.health} HP`);
+
+    if (newPlayerHP <= 0) {
+      addLog(`💀 ${char.name} ПОТЕРЯЛ СОЗНАНИЕ!`);
+      endFight(false);
+    } else if (newMonsterHP <= 0) {
+      addLog(`🎯 ${monster.name} ПОБЕЖДЕН!`);
+      endFight(true);
+    } else {
+      addLog(`🔜 ПОДГОТОВКА К РАУНДУ ${round + 1}...`);
+    }
   };
 
   const getZoneName = (zoneId) => {
@@ -206,7 +285,11 @@ export default function Fight() {
 
   const surrender = () => {
     if (gameOver) return;
-    addLog(`🏳️ ${char.name} сдался`);
+    addLog(`🏳️ ${char.name} ДОБРОВОЛЬНО СДАЕТСЯ!`);
+    addLog(`💔 Бой завершен досрочно`);
+    addLog(
+      `📊 Итоговое здоровье: ${char.name} - ${playerHP} HP, ${monster.name} - ${monsterHP} HP`
+    );
     endFight(false);
   };
 
@@ -225,10 +308,14 @@ export default function Fight() {
 
     if (won) {
       updated.wins++;
-      addLog(`🎉 ${char.name} победил ${monster.name}!`);
+      addLog(
+        `🎉 ПОБЕДА! ${char.name} одолел ${monster.name} за ${round} раундов!`
+      );
+      addLog(`🏆 Новый счет побед: ${updated.wins}`);
     } else {
       updated.loses++;
-      addLog(`💀 ${char.name} проиграл против ${monster.name}...`);
+      addLog(`💀 ПОРАЖЕНИЕ! ${monster.name} оказался сильнее...`);
+      addLog(`📉 Новый счет поражений: ${updated.loses}`);
     }
 
     setChar(updated);
@@ -237,8 +324,7 @@ export default function Fight() {
   };
 
   const continueBattle = () => {
-    clearBattleState();
-    navigate("/fight");
+    startNewBattle();
   };
 
   if (!monster) {
